@@ -9,7 +9,6 @@ def data_req(appkey, sessiontoken, datatype, params):
     params = format_params(params)
     data = '{"jsonrpc": "2.0", "method":"SportsAPING/v1.0/%s",%s, "id": 1}' % (
         datatype, params)
-    print(data)
     data = data.encode('utf-8')
     response = requests.get(baseurl, data=data, headers=headers)
     return response
