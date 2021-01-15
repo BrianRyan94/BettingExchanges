@@ -32,9 +32,7 @@ pw = configs["pw"]
 
 success, sesstoken = sessions.get_sess_token(certpath, keypath, uname, pw)
 
-if success == False:
-    print("Failed to generate a session token, cannot perform tests")
-else:
+def main():
 
     # Test 1 for events
     success, events = staticdata.get_base_events(appkey, sesstoken)
@@ -76,4 +74,51 @@ else:
     else:
         print("Test 5 for getting competitions failed, success:{0}, details:{1}".format(success, competitions))
 
+    # Test 6 for market types
+    success, markettypes = staticdata.get_mkt_types_for_comp(appkey, sesstoken, 345369)
+
+    if success and type(markettypes) == pd.DataFrame:
+        print("Test 6 for getting market types successful")
+    else:
+        print("Test 6 for getting market types failed, success:{0}, details:{1}".format(success, markettypes))
+
+    # Test 7 for market types
+    success, markettypes = staticdata.get_mkt_types_for_comp(appkey + "a", sesstoken, 345369)
+
+    if success==False and type(markettypes) == str:
+        print("Test 7 for getting market types successful")
+    else:
+        print("Test 7 for getting market types failed, success:{0}, details:{1}".format(success, markettypes))
+
+    # Test 8 for timeranges
+
+    success, timeranges = staticdata.get_timerange_competition(appkey, sesstoken, 345369)
+
+    if success and type(timeranges) == pd.DataFrame:
+        print("Test 8 for getting market types successful")
+    else:
+        print("Test 8 for getting market types failed, success:{0}, details:{1}".format(success, timeranges))
+
+    # Test 9 for timeranges
+    success, timeranges = staticdata.get_timerange_competition(appkey, sesstoken, 34536900000)
+
+    if success and type(timeranges) == pd.DataFrame:
+        print("Test 9 for getting time ranges successful")
+    else:
+        print("Test 9 for getting time ranges failed, success:{0}, details:{1}".format(success, timeranges))
+
+    #Test 10 for timeranges
+
+    success, timeranges = staticdata.get_timerange_competition(appkey + "a", sesstoken, 34536900000)
+
+    if success==False and type(timeranges) == str:
+        print("Test 10 for getting time ranges successful")
+    else:
+        print("Test 10 for getting time ranges failed, success:{0}, details:{1}".format(success, timeranges))
+
     sessions.logout(sesstoken, appkey)
+
+if success == False:
+    print("Failed to generate a session token, cannot perform tests")
+else:
+    main()

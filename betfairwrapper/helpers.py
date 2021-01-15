@@ -1,4 +1,5 @@
 import requests
+import datetime
 
 baseurl = "https://api.betfair.com/exchange/betting/json-rpc/v1"
 
@@ -12,15 +13,32 @@ def data_req(appkey, sessiontoken, datatype, params):
     response = requests.get(baseurl, data=data, headers=headers)
     return response
 
+def timestamp_todatetime(x):
+    x = str(x)[:19]
+    x = datetime.datetime.strptime(x, "%Y-%m-%dT%H:%M:%S")
+    return x
+
 
 def format_params(params):
     if len(params) == 0:
         return '"params": {"filter":{ }}'
 
+    filter = " "
     if 'filter' in params:
         filter = format_filter(params['filter'])
         params_format = '"params": {"filter":{' + filter + '}}'
-        return params_format
+        del params['filter']
+
+    other_params = []
+    for key in params:
+        other_params.append('"{0}":"{1}"'.format(str(key), str(params[key])))
+    other_params = ",".join(other_params)
+
+    if other_params=="":
+        params_format = '"params": {"filter":{' + filter + '}}'
+    else:
+        params_format = '"params": {"filter":{' + filter + '},' + other_params + '}'
+    return params_format
 
 
 def format_filter(filters):
