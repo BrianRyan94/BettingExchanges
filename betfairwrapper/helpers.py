@@ -9,6 +9,7 @@ def data_req(appkey, sessiontoken, datatype, params):
     params = format_params(params)
     data = '{"jsonrpc": "2.0", "method":"SportsAPING/v1.0/%s",%s, "id": 1}' % (
         datatype, params)
+    print(data)
     data = data.encode('utf-8')
     response = requests.get(baseurl, data=data, headers=headers)
     return response
@@ -18,6 +19,14 @@ def timestamp_todatetime(x):
     x = datetime.datetime.strptime(x, "%Y-%m-%dT%H:%M:%S")
     return x
 
+def extract_error(result):
+    try:
+        error = result.json()['error']['data']['APINGException']['errorCode']
+        details = "API exception, error code: {0}".format(error)
+    except KeyError:
+        error = result.json()['error']['message']
+        details = "Response error, message: {0}".format(error)
+    return details
 
 def format_params(params):
     if len(params) == 0:
@@ -31,7 +40,12 @@ def format_params(params):
 
     other_params = []
     for key in params:
-        other_params.append('"{0}":"{1}"'.format(str(key), str(params[key])))
+        if type(params[key])==list:
+            values = '"' + '","'.join([str(x) for x in params[key]]) + '"'
+            list_string = "[" + values + "]"
+            other_params.append('"{0}":{1}'.format(str(key), list_string))
+        else:
+            other_params.append('"{0}":"{1}"'.format(str(key), str(params[key])))
     other_params = ",".join(other_params)
 
     if other_params=="":
