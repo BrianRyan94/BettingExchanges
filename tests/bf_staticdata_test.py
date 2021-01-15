@@ -116,9 +116,34 @@ def main():
     else:
         print("Test 10 for getting time ranges failed, success:{0}, details:{1}".format(success, timeranges))
 
+    # Test 11 for runner names: valid market id
+    success, runnernames = staticdata.get_runner_names(appkey, sesstoken, 1.177840678)
+
+    if success and type(runnernames) == pd.DataFrame:
+        print("Test 11 for getting runner names successful")
+    else:
+        print("Test 11 for getting runner names failed, success:{0}, details:{1}".format(success, runnernames))
+
+    # Test 12 for runner names: invalid market id
+    success, runnernames = staticdata.get_runner_names(appkey, sesstoken, 1111)
+
+    if success==False and type(runnernames) == str:
+        print("Test 12 for getting runner names successful")
+    else:
+        print("Test 12 for getting runner names failed, success:{0}, details:{1}".format(success, runnernames))
+
+    # Test 13 for runner names: invalid authentication
+    success, runnernames = staticdata.get_runner_names(appkey + "a", sesstoken, 1111)
+
+    if success == False and type(runnernames) == str:
+        print("Test 12 for getting runner names successful")
+    else:
+        print("Test 12 for getting runner names failed, success:{0}, details:{1}".format(success, runnernames))
+
     sessions.logout(sesstoken, appkey)
 
 if success == False:
     print("Failed to generate a session token, cannot perform tests")
 else:
     main()
+    sessions.logout(sesstoken, appkey)

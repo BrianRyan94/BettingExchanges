@@ -24,8 +24,7 @@ def get_base_events(appkey, sessiontoken):
             details = pd.DataFrame({'Name':names, 'ID':eventids})
         else:
             success = False
-            error = result.json()['error']['data']['APINGException'] ['errorCode']
-            details = "API exception, error code: {0}".format(error)
+            details = helpers.extract_error(result)
     else:
         success = False
         details = "Request for events failed, status code: {0}".format(str(result.status_code))
@@ -59,8 +58,7 @@ def get_competitions(appkey, sessiontoken, eventid=None):
             details = pd.DataFrame({'Name': names, 'ID': compids})
         else:
             success = False
-            error = result.json()['error']['data']['APINGException']['errorCode']
-            details = "API exception, error code: {0}".format(error)
+            details = helpers.extract_error(result)
     else:
         success = False
         details = "Request for competitions failed, status code: {0}".format(str(result.status_code))
@@ -89,8 +87,7 @@ def get_mkt_types_for_comp(appkey, sessiontoken, competitionid):
             details = pd.DataFrame({'MarketType':markettypes})
         else:
             success = False
-            error = result.json()['error']['data']['APINGException']['errorCode']
-            details = "API exception, error code: {0}".format(error)
+            details = helpers.extract_error(result)
     else:
         success = False
         details = "Request for market types failed, status code: {0}".format(str(result.status_code))
@@ -121,13 +118,51 @@ def get_timerange_competition(appkey, sessiontoken, competitionid, granularity="
             details = pd.DataFrame({'Start':time_from, "End":time_to})
         else:
             success = False
-            error = result.json()['error']['data']['APINGException']['errorCode']
-            details = "API exception, error code: {0}".format(error)
+            details = helpers.extract_error(result)
     else:
         success = False
         details = "Request for time ranges failed, status code: {0}".format(str(result.status_code))
 
     return success, details
+
+
+def get_runner_names(appkey, sessiontoken, marketid):
+    """Returns a data frame with columns Name, ID for each runner in the market
+
+    Accepts appkey, sessiontoken and marketID. Returns boolean successvalue and
+    a details variable which is a dataframe if success=True, else an error message."""
+
+    data_type = "listMarketCatalogue"
+
+    params = {"filter":{"marketIds":[marketid]},"maxResults":"1000", "marketProjection":["RUNNER_DESCRIPTION"]}
+
+    result = helpers.data_req(appkey, sessiontoken, data_type, params)
+
+    if result.status_code == 200:
+        if 'result' in result.json():
+
+            try:
+                data = result.json()['result'][0]['runners']
+            except IndexError:
+                return False, "No runner data was found for market ID: {0}".format(marketid)
+            except ValueError:
+                return False, "No runner data was found for market ID: {0}".format(marketid)
+
+            success = True
+            selectionids = [x['selectionId'] for x in data]
+            runnernames = [x['runnerName'] for x in data]
+            details = pd.DataFrame({'Name': runnernames, "ID": selectionids})
+        else:
+            success = False
+            details = helpers.extract_error(result)
+
+    else:
+        success = False
+        details = "Request for time runner names failed, status code: {0}".format(str(result.status_code))
+
+    return success, details
+
+
 
 
 
