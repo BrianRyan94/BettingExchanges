@@ -43,10 +43,21 @@ def format_params(params):
             values = '"' + '","'.join([str(x) for x in params[key]]) + '"'
             list_string = "[" + values + "]"
             other_params.append('"{0}":{1}'.format(str(key), list_string))
+        elif type(params[key])==dict:
+            sub_params = []
+            for paramkey in params[key]:
+                if type(params[key][paramkey])==list:
+                    values = '"' + '","'.join([str(x) for x in params[key][paramkey]]) + '"'
+                    list_string = "[" + values + "]"
+                    sub_params.append('"{0}":{1}'.format(paramkey, list_string))
+                else:
+                    sub_params.append('"{0}":"{1}"'.format(str(paramkey), str(params[key][paramkey])))
+            param_value = "{" + ",".join(sub_params) + "}"
+            other_params.append('"{0}":{1}'.format(str(key),param_value))
         else:
             other_params.append('"{0}":"{1}"'.format(str(key), str(params[key])))
-    other_params = ",".join(other_params)
 
+    other_params = ",".join(other_params)
     if other_params=="":
         params_format = '"params": {"filter":{' + filter + '}}'
     else:
@@ -75,3 +86,9 @@ def format_filter(filters):
                 filter += '"{0}"'.format(filters[ky])
             incr += 1
         return filter
+
+def odds_transformer(x):
+    if x==0:
+        return 0
+    else:
+        return round(1/x, 4)
