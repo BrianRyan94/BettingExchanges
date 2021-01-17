@@ -64,7 +64,7 @@ def main():
     if success and type(competitions) == pd.DataFrame:
         print("Test 4 for getting competitions successful")
     else:
-        print("Test 4 for getting base events failed, success:{0}, details:{1}".format(success, competitions))
+        print("Test 4 for getting competitions failed, success:{0}, details:{1}".format(success, competitions))
 
     # Test 5 for competitions
     success, competitions = staticdata.get_competitions(appkey, sesstoken + "a")

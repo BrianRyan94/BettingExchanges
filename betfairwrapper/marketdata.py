@@ -20,7 +20,6 @@ def get_mkt_book(appkey, sessiontoken, marketid):
     result = helpers.data_req(appkey, sessiontoken, data_type, params)
 
     if result.status_code == 200:
-
         if 'result' in result.json():
             try:
                 data = result.json()['result'][0]
@@ -71,4 +70,4 @@ def get_mkt_book(appkey, sessiontoken, marketid):
     return success, details
 
 
-success, details = get_mkt_book('u3aNksQGhdXhGldb', 'ZFQMOo7hUsfoamCdocvMsJLN3vGid5/iiP5WV4G4poA=', 1.177840678)
+

@@ -2,21 +2,30 @@ import requests
 import datetime
 
 baseurl = "https://api.betfair.com/exchange/betting/json-rpc/v1"
+accounturl = "https://api.betfair.com/exchange/account/json-rpc/v1"
 
-
-def data_req(appkey, sessiontoken, datatype, params):
+def data_req(appkey, sessiontoken, datatype, params, type="Sports"):
     headers = {'X-Application': appkey, 'X-Authentication': sessiontoken, 'content-type': 'application/json'}
     params = format_params(params)
-    data = '{"jsonrpc": "2.0", "method":"SportsAPING/v1.0/%s",%s, "id": 1}' % (
-        datatype, params)
+    data = '{"jsonrpc": "2.0", "method":"%sAPING/v1.0/%s",%s, "id": 1}' % (
+        type, datatype, params)
     data = data.encode('utf-8')
-    response = requests.get(baseurl, data=data, headers=headers)
+    if type=="Sports":
+        url = baseurl
+    elif type=="Account":
+        url = accounturl
+    response = requests.get(url, data=data, headers=headers)
     return response
 
 def timestamp_todatetime(x):
     x = str(x)[:19]
     x = datetime.datetime.strptime(x, "%Y-%m-%dT%H:%M:%S")
     return x
+
+def datetime_totimestamp(x):
+    x = datetime.datetime.strftime(x, "%Y-%m-%dT%H:%M:%SZ")
+    return x
+
 
 def extract_error(result):
     try:

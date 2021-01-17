@@ -47,7 +47,6 @@ def get_competitions(appkey, sessiontoken, eventid=None):
         params = {'filter':{'eventTypeIds':[eventid]}}
 
     result = helpers.data_req(appkey, sessiontoken, data_type, params)
-
     if result.status_code == 200:
 
         if 'result' in result.json():
