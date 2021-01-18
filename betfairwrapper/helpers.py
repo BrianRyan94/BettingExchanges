@@ -49,9 +49,24 @@ def format_params(params):
     other_params = []
     for key in params:
         if type(params[key])==list:
-            values = '"' + '","'.join([str(x) for x in params[key]]) + '"'
-            list_string = "[" + values + "]"
-            other_params.append('"{0}":{1}'.format(str(key), list_string))
+            if type(params[key][0])==dict:
+                inner_dict = []
+                for ky in params[key][0]:
+                    if type(params[key][0][ky])==dict:
+                        inner_inner_dict = []
+                        for subkey in params[key][0][ky]:
+                            inner_inner_dict.append('"{0}":"{1}"'.format(str(subkey), str(params[key][0][ky][subkey])))
+                        inner_inner_dict = "{" + ",".join(inner_inner_dict) + "}"
+                        inner_dict.append('"{0}":{1}'.format(str(ky),inner_inner_dict))
+                    else:
+                        inner_dict.append('"{0}":"{1}"'.format(str(ky),str(params[key][0][ky])))
+                inner_dict = ",".join(inner_dict)
+                full_param="[{" + inner_dict + "}]"
+                other_params.append('"{0}":{1}'.format(str(key), full_param))
+            else:
+                values = '"' + '","'.join([str(x) for x in params[key]]) + '"'
+                list_string = "[" + values + "]"
+                other_params.append('"{0}":{1}'.format(str(key), list_string))
         elif type(params[key])==dict:
             sub_params = []
             for paramkey in params[key]:

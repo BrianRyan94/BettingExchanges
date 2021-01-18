@@ -145,5 +145,6 @@ def main():
 if success == False:
     print("Failed to generate a session token, cannot perform tests")
 else:
-    main()
-    sessions.logout(sesstoken, appkey)
+    pass
+    #main()
+    #sessions.logout(sesstoken, appkey)
