@@ -57,14 +57,17 @@ def main():
     # Test 3 for order details including time ranges - should be successful
 
     success, details = orders.list_orders(appkey, sesstoken, datetime.datetime(2021, 1, 17, 13, 42, 0), datetime.datetime(2021, 1, 19, 23, 59, 00))
-    print(details)
+
+    incomplete = details[details['status'] == 'EXECUTABLE']
+    incomplete_betid = list(incomplete['betId'])[0]
+
     if success and type(details) == pd.DataFrame:
         print("Test 3 for getting order details successful")
     else:
         print("Test 3 for getting order details failed, success:{0}, details:{1}".format(success, details))
 
     # Test 4 for placing an order - should be successful
-    #success, details = orders.placeOrder(appkey, sesstoken, 1.177655531, 1222347, "BACK", 2, 1.05)
+    #success, details = orders.placeOrder(appkey, sesstoken, 1.177655531, 1222347, "BACK", 2, 1.5)
 
     #if success and type(details) == pd.DataFrame:
     #    print("Test 4 for placing order successful")
@@ -89,7 +92,23 @@ def main():
     else:
         print("Test 6 for placing order failed, success:{0}, details:{1}".format(success, details))
 
+    # Test 7 for cancelling an order - should be successful
 
+    success, details = orders.cancelOrder(appkey, sesstoken, 1.177655531,incomplete_betid, 2)
+
+    if success == True and type(details)==pd.DataFrame:
+        print("Test 7 for cancelling order successful")
+    else:
+        print("Test 7 for cancelling order failed, success:{0}, details:{1}".format(success, details))
+
+    # Test 8 for cancelling an order - should be unsuccessful
+
+    success, details = orders.cancelOrder(appkey, sesstoken, 999, 222093076985, 2)
+
+    if success == False and type(details) == str:
+        print("Test 8 for cancelling order successful")
+    else:
+        print("Test 8 for cancelling order failed, success:{0}, details:{1}".format(success, details))
 
 
 if success == False:

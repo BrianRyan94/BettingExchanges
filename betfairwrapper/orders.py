@@ -101,6 +101,52 @@ def placeOrder(appkey, sessiontoken, marketid, selectionid, side, amount, limitp
 
     return success, details
 
+def cancelOrder(appkey, sessiontoken, marketid, betid, sizereduction):
+
+    data_type = "cancelOrders"
+
+    instructions = [{"betId":betid, "sizeReduction":sizereduction}]
+
+    params = {'marketId':marketid,"instructions":instructions}
+
+    result = helpers.data_req(appkey, sessiontoken, data_type, params)
+
+    if result.status_code == 200:
+        data = result.json()
+        if 'result' in data:
+            if 'status' in data['result']:
+                if data['result']['status'] == "SUCCESS":
+                    success = True
+                    betid = data['result']['instructionReports'][0]['instruction']['betId']
+                    sizecancelled = data['result']['instructionReports'][0]['sizeCancelled']
+                    datecancelled = helpers.timestamp_todatetime(data['result']['instructionReports'][0]['cancelledDate'])
+                    details = pd.DataFrame({'betId': [betid], 'sizeCancelled': [sizecancelled],
+                                            'cancelledDate': [datecancelled]})
+
+                else:
+                    success = False
+                    status = data['result']['status']
+                    details = "Bet cancellations failed, received json response with success={0}".format(str(status))
+            else:
+                success = False
+                details = "Bet placement failed, no status sent back in response"
+        else:
+            success = False
+            try:
+                errorcode = data['error']['data']['APINGException']['errorCode']
+                errordetails = data['error']['data']['APINGException']['errorDetails']
+                details = "Failed to cancel bet, error code: {0}, error details: {1}".format(errorcode, errordetails)
+            except KeyError:
+                try:
+                    error = helpers.extract_error(result)
+                    details = "Failed to cancel bet, error details: {0}".format(error)
+                except:
+                    details = "Failed to cancel bet, unrecognized error code."
+
+    return success, details
+
+
+
 # [{"jsonrpc": "2.0", "method": "SportsAPING/v1.0/placeOrders", "params": {"marketId":"1.177752745","instructions":[{"selectionId":"6611396","handicap":"0","side":"BACK","orderType":"LIMIT","limitOrder":{"size":"2","price":"1.01"}}]}, "id": 1}]
 
 # {'jsonrpc': '2.0', 'error': {'code': -32099, 'message': 'ANGX-0002', 'data': {'APINGException': {'requestUUID': 'ie2-ang22a-prd-01140948-0009f9ebb8', 'errorCode': 'INVALID_INPUT_DATA', 'errorDetails': 'market id passed is invalid'}, 'exceptionname': 'APINGException'}}, 'id': 1}
