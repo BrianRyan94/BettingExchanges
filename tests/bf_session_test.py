@@ -89,6 +89,7 @@ def keep_alive_test():
 
 def logout_test():
     success, output = sessions.get_sess_token(certpath, keypath, uname, pw)
+    print(output)
 
     if success == False:
         print("Failed to generate a session token, cannot perform tests")
@@ -116,5 +117,5 @@ def logout_test():
 
 sess_token_test()
 keep_alive_test()
-logout_test()
+#logout_test()
 

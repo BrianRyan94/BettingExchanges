@@ -19,4 +19,3 @@ def connect_session(uname, pw):
         details = "Failed to generate a session token, error type: {0}".format(result.json()['error_type'])
     return success, details
 
-def logout_session()
