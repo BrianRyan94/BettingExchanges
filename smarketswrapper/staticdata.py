@@ -67,5 +67,65 @@ def get_child_events(sesstoken, parentid, extra_filters = {}):
 
     return success,details
 
+def get_market_types(sesstoken, bettable_id):
+    endpoint = "events/{0}/markets?sort=event_id%2Cdisplay_order".format(str(bettable_id))
+
+    headers = {"Authorization": "Session-Token {0}".format(sesstoken)}
+
+    result = helpers.data_req(endpoint, headers)
+
+    if result.status_code == 200:
+        data = result.json()
+        if 'markets' in data and len(data['markets'])>0:
+            success = True
+
+            data = data['markets']
+            df_dict = {}
+            for field in ['name', 'id', 'bet_delay', 'cashout_enabled', 'inplay_enabled', 'state', 'winner_count']:
+                df_dict[field] = [x[field] for x in data]
+
+            details = pd.DataFrame(df_dict)
+        else:
+            success = False
+            details = "Reponse code 200, but no markets retrieved."
+    else:
+        success = False
+        details = "Request for market types failed, status code: {0}".format(str(result.status_code))
+
+    return success, details
+
+def get_contracts_for_market(sesstoken, marketid):
+
+    endpoint = "markets/{0}/contracts/".format(str(marketid))
+
+    headers = {"Authorization": "Session-Token {0}".format(sesstoken)}
+
+    result = helpers.data_req(endpoint, headers)
+
+    if result.status_code==200:
+        data = result.json()
+        if 'contracts' in data and len(data['contracts'])>0:
+            success = True
+            data = data['contracts']
+            df_dict = {}
+
+            for colname in ['name', 'competitor_id', 'id','state_or_outcome']:
+                df_dict[colname] = [x[colname] for x in data]
+            details = pd.DataFrame(df_dict)
+        else:
+            success = False
+            details = "Response received but not contracts found for market id {0}".format(marketid)
+    else:
+        success = False
+        details = "Request for contracts failed, status code: {0}".format(str(result.status_code))
+
+    return success, details
+
+
+
+
+
+
+
 
 

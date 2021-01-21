@@ -49,6 +49,8 @@ def main():
 
         success, details = staticdata.get_child_events(sesstoken, golfid, {'limit':[1000]})
 
+
+
         if success and type(details)==pd.DataFrame:
             print("Test 2 for getting child events passed.")
         else:
@@ -62,6 +64,52 @@ def main():
             print("Test 3 for getting child events passed.")
         else:
             print("Test 3 for getting child events failed, success:{0} error: {1}".format(success, details))
+
+
+        success, details = staticdata.get_base_events(sesstoken)
+        golfid = list(details[details['Name'] == 'Golf']['ID'])[0]
+        success, details = staticdata.get_child_events(sesstoken, golfid, {'limit': [1000]})
+        comp_id = list(details[details['Name'] == 'Abu Dhabi Hsbc Championship 2021']['ID'])[0]
+        success, details = staticdata.get_child_events(sesstoken, comp_id)
+        bettable_id = list(details['ID'])[0]
+
+        # Test 4 - should be a success
+        success, details = staticdata.get_market_types(sesstoken, bettable_id)
+
+        winner_id = list(details[details['name']=='Winner']['id'])[0]
+
+
+        if success and type(details) == pd.DataFrame:
+            print("Test 4 for getting market types passed")
+        else:
+            print("Test 4 for getting market types failed, success: {0}, details: {1}".format(success, details))
+
+        # Test 5 for getting market data types - should fail.
+
+        success, details = staticdata.get_market_types(sesstoken + "a", 9999)
+
+        if success == False and type(details) == str:
+            print("Test 5 for getting market types passed")
+        else:
+            print("Test 5 for getting market types failed, success: {0}, details: {1}".format(success, details))
+
+        # Test 6 for getting contracts for market id - should succeed
+
+        success, details = staticdata.get_contracts_for_market(sesstoken, winner_id)
+
+        if success and type(details)==pd.DataFrame:
+            print("Test 6 for getting contracts passed")
+        else:
+            print("Test 6 for getting contracts failed, success: {0}, details: {1}".format(success, details))
+
+        # Test 7 for getting contracts for market id - should fail
+
+        success, details = staticdata.get_contracts_for_market(sesstoken, 101)
+
+        if success==False and type(details) == str:
+            print("Test 6 for getting contracts passed")
+        else:
+            print("Test 7 for getting contracts failed, success: {0}, details: {1}".format(success, details))
 
     else:
         print("Failed to generate a session token, cannot perform tests.")
