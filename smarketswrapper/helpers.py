@@ -1,6 +1,6 @@
 import requests
 import datetime
-import pandas as pd
+import json
 
 baseurl = "https://api.smarkets.com/v3/"
 
@@ -16,6 +16,20 @@ def data_req(endpoint, headers, data=None, filters=None):
         response = requests.get(url, headers=headers)
     else:
         response = requests.post(url, headers=headers, json=data)
+
+    return response
+
+def order_req(headers, actiontype, params = {}):
+
+    url = baseurl + "orders/"
+
+    if actiontype=="post":
+        headers.update({'Content-Type':"application/json"})
+        response = requests.post(url, headers=headers, data=json.dumps(params))
+    elif actiontype=="get":
+        formatted_filter = format_filter(params)
+        url += formatted_filter
+        response = requests.get(url, headers=headers)
 
     return response
 
@@ -37,6 +51,9 @@ def datetime_totimestamp(x):
 
 def odds_transformer(x):
     return float(x)/10000
+
+def odds_inverter(x):
+    return round(float(x)*10000, 0)
 
 def parse_odds_to_df(data):
     contract_ids = list(data.keys())
@@ -96,3 +113,13 @@ def size_transformer(sz, px):
         return (float(sz)*float(px))/100000000
     except:
         return 0
+
+def size_inverter(sz, px):
+    return sz*(100000000/float(px))
+
+def size_transformer_series(x):
+    sz = x[0]
+    px = x[1]
+    return round((float(sz) * float(px)) / 100000000, 2)
+
+
