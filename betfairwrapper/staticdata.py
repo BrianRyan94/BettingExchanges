@@ -3,11 +3,17 @@ import pandas as pd
 
 def get_base_events(appkey, sessiontoken):
 
-    """Retrieves a data frame of EventNames:EventIds
+    """Returns a dataframe of the Market Types for a given competition id
 
-    Accepts valid appkey/session token. Return format includes a
-    boolean success value and details which is the data frame if success,
-    otherwise error details."""
+            Parameters:
+                appkey (str): Betfair Application Key
+                sessiontoken (str): Betfair session token
+
+            Returns:
+                success (boolean): True if api call is successful, else false
+
+                details (Dataframe/string): If success is true then a dataframe
+                of the event types (2 columns: Event Names/ID)"""
 
     data_type = "listEventTypes"
     params = {}
@@ -33,11 +39,18 @@ def get_base_events(appkey, sessiontoken):
 
 def get_competitions(appkey, sessiontoken, eventid=None):
 
-    """Retrieves a data frame of competitions for an event (i.e. Golf)
+    """Returns a dataframe of the Market Types for a given competition id
 
-    Dataframe has the tournament name and ID. Returns 2 values - a boolean
-    indicating whether the retrieval was successful, and details (the dataframe
-    if successful and an error message otherwise."""
+            Parameters:
+                appkey (str): Betfair Application Key
+                sessiontoken (str): Betfair session token
+                eventid *optional* (str/int): Event ID (e.g. Golf: 3) for which you want competitions
+
+            Returns:
+                success (boolean): True if api call is successful, else false
+
+                details (Dataframe/string): If success is true then a dataframe
+                of the competitions (2 columns: Name/ID)"""
 
     data_type="listCompetitions"
 
@@ -66,10 +79,18 @@ def get_competitions(appkey, sessiontoken, eventid=None):
 
 def get_mkt_types_for_comp(appkey, sessiontoken, competitionid):
 
-    """Retrieves a dataframe of the market types available for a given competition id.
+    """Returns a dataframe of the Market Types for a given competition id
 
-    Returns a boolean success value, and a details value containing the result if successful
-    otherwise an error message."""
+            Parameters:
+                appkey (str): Betfair Application Key
+                sessiontoken (str): Betfair session token
+                tournamentid (str/int): Tournament ID (e.g. Premier League: 3) for which you want time range
+
+            Returns:
+                success (boolean): True if api call is successful, else false
+
+                details (Dataframe/string): If success is true then a dataframe
+                of the market types (1 column: Market Types)"""
 
     data_type="listMarketTypes"
 
@@ -95,11 +116,18 @@ def get_mkt_types_for_comp(appkey, sessiontoken, competitionid):
 
 def get_timerange_competition(appkey, sessiontoken, competitionid, granularity="DAYS"):
 
-    """Retrieves a dataframe of the time ranges for a given competition id.
+    """Returns a dataframe of the time ranges for a given competition id
 
-    Returns a boolean success value, and a details value containing the result if successful
-    otherwise an error message. It can return multiple values if there are multiple markets
-    with different start and end times matching the competitionID filter based on the granularity"""
+            Parameters:
+                appkey (str): Betfair Application Key
+                sessiontoken (str): Betfair session token
+                tournamentid (str/int): Tournament ID (e.g. Premier League: 3) for which you want time range
+
+            Returns:
+                success (boolean): True if api call is successful, else false
+
+                details (Dataframe/string): If success is true then a dataframe
+                of the competition time ranges (1 row: columns start/end) """
 
     data_type="listTimeRanges"
 
@@ -126,10 +154,19 @@ def get_timerange_competition(appkey, sessiontoken, competitionid, granularity="
 
 
 def get_runner_names(appkey, sessiontoken, marketid):
-    """Returns a data frame with columns Name, ID for each runner in the market
 
-    Accepts appkey, sessiontoken and marketID. Returns boolean successvalue and
-    a details variable which is a dataframe if success=True, else an error message."""
+    """Returns competitor/runner names in dataframe form for a given market
+
+        Parameters:
+            appkey (str): Betfair Application Key
+            sessiontoken (str): Betfair session token
+            marketid (str/int): Market ID (e.g. Pga Championship: Winner) for which you want competitors
+
+        Returns:
+            success (boolean): True if api call is successful, else false
+
+            details (Dataframe/string): If success is true then a dataframe
+            of the runners with runner name/runner id as the columns"""
 
     data_type = "listMarketCatalogue"
 
@@ -160,6 +197,116 @@ def get_runner_names(appkey, sessiontoken, marketid):
         details = "Request for time runner names failed, status code: {0}".format(str(result.status_code))
 
     return success, details
+
+def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None):
+
+    """Returns a market catalogue in dataframe form given filters on tournaments/matches
+
+        Parameters:
+            appkey (str): Betfair Application Key
+            sessiontoken (str): Betfair session token
+            tournamentid *optional* (str/int): Tournament ID (e.g. Premier League: 3) for which you want markets returned
+            matchid *optional* (str/int): Match ID (e.g. Man Utd Vs Arsenal) for which you want markets returned
+
+        Returns:
+            success (boolean): True if api call is successful, else false
+
+            details (Dataframe/string): If success is true then a dataframe
+            of the markets including the marketid/marketname and total matched.
+            If success==false, a string detailing the error."""
+
+    data_type = "listMarketCatalogue"
+
+    params = {'maxResults':"100"}
+
+    filter = {}
+
+    if tournamentid is not None:
+        filter.update({"competitionIds": [str(tournamentid)]})
+
+    if matchid is not None:
+        filter.update({"eventIds": [str(matchid)]})
+
+    if len(filter)!=0:
+        params.update({"filter":filter})
+
+    result = helpers.data_req(appkey, sessiontoken, data_type, params)
+
+    if result.status_code==200:
+        if 'result' in result.json() and len(result.json()['result'])>0:
+            data = result.json()['result']
+            success = True
+            data_dict = {}
+
+            for fld in ['marketId', 'marketName','totalMatched']:
+                data_dict[fld] = [x[fld] for x in data]
+
+            details = pd.DataFrame(data_dict)
+        else:
+            success = False
+            try:
+                details = helpers.extract_error(result)
+            except:
+                details = "Received response, but no markets found for tournament ID: {0}, match ID".format(tournamentid, matchid)
+    else:
+        success = False
+        details = "Request for market catalogue failed, status code: {0}".format(str(result.status_code))
+
+    return success,details
+
+def get_matches(appkey, sessiontoken, tournamentid):
+
+    """Returns matches (referred to as events) from Betfair
+
+    Parameters:
+        appkey (str): Betfair Application Key
+        sessiontoken (str): Betfair session token
+        tournamentid (str/int): Tournament ID (e.g. Premier League: 3) for which you want matches returned
+
+    Returns:
+        success (boolean): True if api call is successful, else false
+
+        details (Dataframe/string): If success is true then a dataframe
+        of the matches including the name/matchid/timezone and opendate.
+        If false, a string detailing the error."""
+
+    data_type = "listEvents"
+
+    params = {"filter": {"competitionIds": [str(tournamentid)]}}
+
+    result = helpers.data_req(appkey, sessiontoken, data_type, params)
+
+    if result.status_code==200:
+        data = result.json()
+        if 'result' in data:
+            success = True
+            data = data['result']
+            data = [x['event'] for x in data]
+
+            data_dict = {}
+            for fld in ['name', 'id', 'timezone', 'openDate']:
+                data_dict[fld] = [x[fld] for x in data]
+            details = pd.DataFrame(data_dict)
+            details = details.rename(columns={'name':'MatchName', 'id':'MatchID'})
+        else:
+            success = False
+            try:
+                details = helpers.extract_error(result)
+            except:
+                details = "Response code 200 received, but no results field in body."
+    else:
+        success = False
+        details = "Request for matches failed, status code: {0}".format(str(result.status_code))
+
+    return success, details
+
+
+
+
+
+
+
+
 
 
 

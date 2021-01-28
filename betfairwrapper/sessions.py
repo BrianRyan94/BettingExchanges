@@ -1,11 +1,20 @@
 import requests
 
 def get_sess_token(cert_path, key_path, uname, pw):
-    """Returns a session token for non-interactive logins
 
-    To setup a certificate to allow you to do this visit
-    https://docs.developer.betfair.com/pages/viewpage.action?pageId=3834909#Login&SessionManagement-Non-Interactivelogin
-    Must pass the path to this certificate, path to the key, application key, username and password to retrieve the session token"""
+    """Returns a session token for future requests using non-interactive login. For details on how to
+    get a certificate/key path see https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Non-Interactive+%28bot%29+login
+
+            Parameters:
+                cert_path (str): Path to the client certificate on your computer
+                key_path (str): Path to the key on your computer
+                uname (str): Username for betfair account
+                pw (str): Password for betfair account
+
+            Returns:
+                success (boolean): True if api call is successful, else false
+
+                details (str):     The session token if successful, else an error message."""
 
     payload = 'username=' + uname + '&password=' + pw
     headers = {'X-Application': "Key", 'Content-Type': 'application/x-www-form-urlencoded'}
@@ -30,11 +39,16 @@ def get_sess_token(cert_path, key_path, uname, pw):
 
 def extend_session(session_token, appkey):
 
-    """Submits a request to betfair to extend the session
+    """Submits a request to extend betfair session
 
-    Accepts the session token and application key as inputs. Returns boolean value indicating
-    whether the session was successfully extended, and a text output with further details of failed
-    requests"""
+            Parameters:
+                appkey (str): Betfair Application Key
+                sessiontoken (str): Betfair session token
+
+            Returns:
+                success (boolean): True if successful and session extended
+
+                details (string): error message if request failed."""
 
     headers = {'X-Application':appkey, 'Accept':"application/json", "X-Authentication":session_token}
     resp = requests.post("https://identitysso.betfair.com/api/keepAlive", headers=headers)
@@ -50,10 +64,16 @@ def extend_session(session_token, appkey):
 
 def logout(session_token, appkey):
 
-    """Attempts to logout of the session
+    """Returns a dataframe of the Market Types for a given competition id
 
-    Accepts session token and app key. Returns boolean success and
-    extra details for failed requests"""
+            Parameters:
+                appkey (str): Betfair Application Key
+                sessiontoken (str): Betfair session token
+
+            Returns:
+                success (boolean): True if request to logout is successful else false
+
+                details (string): error message if request failed."""
 
     headers = {'X-Application': appkey, 'Accept': "application/json", "X-Authentication": session_token}
     resp = requests.post("https://identitysso.betfair.com/api/logout", headers=headers)

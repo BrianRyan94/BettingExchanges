@@ -4,14 +4,21 @@ import pandas as pd
 
 
 def list_orders(appkey, sessiontoken, since=None, until=None):
-    """Returns a dataframe of prior orders for the date range specified (if date range given
+    """Returns a dictionary of dataframes corresponding to filled/live and cancelled orders.
 
-    Uses the default api settings - that is ordered by bet placed time. The date range
-    filter also uses the bet placed time. Dataframe includes betid, marketid, selection id,
-    the size matched/cancelled/voided, the average price matched, the size remaining and
-    the order status. Follows convention of a boolean success=True/False being returned
-    first followed by a variable, "details" which corresponds to the dataframe if success=True,
-    otherwise an error message"""
+            Parameters:
+                appkey (str): Betfair Application Key
+                sessiontoken (str): Betfair session token
+                since *optional* (datetime): Filter for orders from time created
+                until *optional* (datetime): Filter for orders before time created
+
+            Returns:
+                success (boolean): True if api call is successful, else false
+
+                details (dictionary/string): If success is true then a dictionary with
+                3 dataframes. Dictionary keys are live (dataframe of live orders),
+                fills (dataframe of filled orders) and cancelled (dataframe of cancelled
+                orders). If the request failed, returns an error."""
 
     data_type = "listCurrentOrders"
 
@@ -27,6 +34,12 @@ def list_orders(appkey, sessiontoken, since=None, until=None):
 
     if result.status_code == 200:
 
+        def try_convert_odds(x):
+            try:
+                return helpers.odds_transformer(float(x))
+            except:
+                return x
+
         if 'result' in result.json():
             success = True
             data = result.json()['result']['currentOrders']
@@ -35,10 +48,21 @@ def list_orders(appkey, sessiontoken, since=None, until=None):
                         "orderType", "placedDate", "matchedDate", "averagePriceMatched",
                         "sizeMatched", "sizeCancelled", "sizeVoided", "sizeRemaining"]:
                 df_dict[fld] = [x.get(fld, "NotFound") for x in data]
+
             df_dict["price"] = [x.get("priceSize", {}).get("price", "NotFound") for x in data]
             df_dict["size"] = [x.get("priceSize", {}).get("size", "NotFound") for x in data]
 
             details = pd.DataFrame(df_dict)
+
+            details['averagePriceMatched'] = details['averagePriceMatched'].apply(lambda x: try_convert_odds(x))
+            details['price'] = details['price'].apply(lambda x: try_convert_odds(x))
+
+
+            live = helpers.extract_order_type(details, 'live')
+            fills = helpers.extract_order_type(details, 'fills')
+            cancelled = helpers.extract_order_type(details, 'cancelled')
+
+            details = {'live':live, 'fills':fills, 'cancelled':cancelled}
 
         else:
             success = False
@@ -50,7 +74,27 @@ def list_orders(appkey, sessiontoken, since=None, until=None):
     return success, details
 
 
-def placeOrder(appkey, sessiontoken, marketid, selectionid, side, amount, limitpx):
+def placeOrder(appkey, sessiontoken, marketid, selectionid, side, amount, limitprob):
+
+    """Places a limit order with order type LAPSE (lapse the order when market goes in play).
+
+                Parameters:
+                    appkey (str): Betfair Application Key
+                    sessiontoken (str): Betfair session token
+                    marketid (str/int): Market ID for order
+                    selectionid (str/int): Selection ID for order
+                    side (BACK/LAY): Side for order
+                    amount: Amount in account currency to bet
+                    limitprob (float): The probability you are buying/selling (e.g. 0.05 if you are buying 20.0)
+
+                Returns:
+                    success (boolean): True if bet placement is successful, else false
+
+                    details (Dataframe/string): If success is true then a dataframe with bet details
+                    including betid/placeddate/status/size matched/average price matched."""
+
+    limitpx = helpers.odds_inverter(limitprob)
+
     data_type = "placeOrders"
 
     instructions = [{"selectionId": selectionid, "handicap": 0,
@@ -82,7 +126,7 @@ def placeOrder(appkey, sessiontoken, marketid, selectionid, side, amount, limitp
                 else:
                     success = False
                     status = data['result']['status']
-                    details = "Bet placement failed, received json response with succes={0}".format(str(status))
+                    details = "Bet placement failed, received the following json response: {0}".format(str(data['result']))
             else:
                 success = False
                 details = "Bet placement failed, no status sent back in response"
@@ -102,6 +146,22 @@ def placeOrder(appkey, sessiontoken, marketid, selectionid, side, amount, limitp
     return success, details
 
 def cancelOrder(appkey, sessiontoken, marketid, betid, sizereduction):
+
+    """Cancel/reduce the size of a live bet.
+
+                    Parameters:
+                        appkey (str): Betfair Application Key
+                        sessiontoken (str): Betfair session token
+                        marketid (str/int): Market ID for order
+                        betid (str/int): Bet ID for cancellation
+                        sidereduction (float): Amount in account currency you want to reduce the bet
+
+                    Returns:
+                        success (boolean): True if bet cancellation is successful, else false
+
+                        details (Dataframe/string): If success is true then a dataframe with cancellation
+                        details including the bet id, size cancelled, and cancelled time. If false,
+                        an error message."""
 
     data_type = "cancelOrders"
 
@@ -144,9 +204,3 @@ def cancelOrder(appkey, sessiontoken, marketid, betid, sizereduction):
                     details = "Failed to cancel bet, unrecognized error code."
 
     return success, details
-
-
-
-# [{"jsonrpc": "2.0", "method": "SportsAPING/v1.0/placeOrders", "params": {"marketId":"1.177752745","instructions":[{"selectionId":"6611396","handicap":"0","side":"BACK","orderType":"LIMIT","limitOrder":{"size":"2","price":"1.01"}}]}, "id": 1}]
-
-# {'jsonrpc': '2.0', 'error': {'code': -32099, 'message': 'ANGX-0002', 'data': {'APINGException': {'requestUUID': 'ie2-ang22a-prd-01140948-0009f9ebb8', 'errorCode': 'INVALID_INPUT_DATA', 'errorDetails': 'market id passed is invalid'}, 'exceptionname': 'APINGException'}}, 'id': 1}

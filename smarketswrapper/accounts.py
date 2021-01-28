@@ -77,13 +77,6 @@ def get_account_statement(sesstoken, timeframe=None):
 
 
 
-    print(result.json())
-
-
-
-
-
-
 
 
 

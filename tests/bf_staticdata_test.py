@@ -8,6 +8,7 @@ sys.path.append("../betfairwrapper")
 import sessions
 import staticdata
 
+pd.set_option('expand_frame_repr', False)
 
 def parse_config():
     conf_path = os.path.dirname(__file__).replace("tests", "conf") + "/conf.conf"
@@ -117,7 +118,8 @@ def main():
         print("Test 10 for getting time ranges failed, success:{0}, details:{1}".format(success, timeranges))
 
     # Test 11 for runner names: valid market id
-    success, runnernames = staticdata.get_runner_names(appkey, sesstoken, 1.177840678)
+    #current market id is for the us masters
+    success, runnernames = staticdata.get_runner_names(appkey, sesstoken, 1.175611431)
 
     if success and type(runnernames) == pd.DataFrame:
         print("Test 11 for getting runner names successful")
@@ -140,11 +142,57 @@ def main():
     else:
         print("Test 13 for getting runner names failed, success:{0}, details:{1}".format(success, runnernames))
 
-    sessions.logout(sesstoken, appkey)
+    # Test 14 for market catalogue should be success
+
+    success, details = staticdata.get_market_catalogue(appkey, sesstoken, tournamentid="12304075")
+
+
+    if success and type(details)==pd.DataFrame:
+        print("Test 14 for getting market catalogue success.")
+    else:
+        print("Test 14 for getting market catalogue failed, success:{0}, details:{1}".format(success, details))
+
+    # Test 15 for market catalogue should fail
+
+    success, details = staticdata.get_market_catalogue(appkey, sesstoken, tournamentid="12306719999")
+
+    if success==False and type(details) == str:
+        print("Test 15 for getting market catalogue success.")
+    else:
+        print("Test 15 for getting market catalogue failed, success:{0}, details:{1}".format(success, details))
+
+    # Test 16 for market catalogue should succeed
+
+    success, details = staticdata.get_market_catalogue(appkey, sesstoken, tournamentid="12304075")
+
+    if success and type(details) == pd.DataFrame:
+        print("Test 16 for getting market catalogue success.")
+    else:
+        print("Test 16 for getting market catalogue failed, success:{0}, details:{1}".format(success, details))
+
+    # Test 17 for matches should be success
+
+    success, details = staticdata.get_matches(appkey, sesstoken, "10932509")
+
+    if success and type(details) == pd.DataFrame:
+        print("Test 17 for getting matches success.")
+    else:
+        print("Test 17 for getting matches failed, success:{0}, details:{1}".format(success, details))
+
+    # Test 18 for matches should fail
+
+    success, details = staticdata.get_matches(appkey, sesstoken+"a", "1")
+
+    if success==False and type(details) == str:
+        print("Test 18 for getting matches success.")
+    else:
+        print("Test 18 for getting matches failed, success:{0}, details:{1}".format(success, details))
+
+
 
 if success == False:
     print("Failed to generate a session token, cannot perform tests")
 else:
-    pass
-    #main()
-    #sessions.logout(sesstoken, appkey)
+    main()
+    sessions.logout(sesstoken, appkey)
+

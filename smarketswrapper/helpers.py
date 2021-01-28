@@ -30,6 +30,10 @@ def order_req(headers, actiontype, params = {}):
         formatted_filter = format_filter(params)
         url += formatted_filter
         response = requests.get(url, headers=headers)
+    elif actiontype=="delete":
+        if len(params)!=0:
+            url = url + str(params['orderid']) + "/"
+        response = requests.delete(url, headers=headers)
 
     return response
 
@@ -107,6 +111,31 @@ def parse_trades_to_df(data):
     df_dict['timestamp'] = times
 
     return pd.DataFrame(df_dict).sort_values(by='timestamp', ascending=False)
+
+def extract_order_type(details, order_type):
+    if order_type=='fills':
+        order_df = details[['order_id', 'created_datetime', 'contract_id', 'market_id', 'state', 'side',
+                            'average_fill_px', 'real_quantity_filled', 'quantity_filled_user_currency']]
+
+        order_df = order_df[order_df['quantity_filled_user_currency'] > 0]
+
+    elif order_type=='live':
+        order_df = details[['order_id', 'price', 'real_quantity_unfilled', 'created_datetime',
+                           'contract_id', 'market_id', 'state', 'side',
+                           'quantity_unfilled_user_currency']]
+
+        order_df = order_df[order_df['quantity_unfilled_user_currency'] > 0]
+
+    elif order_type=='pending':
+        order_df = details[['order_id', 'created_datetime', 'contract_id', 'market_id', 'state', 'side',
+                                    'average_fill_px', 'real_quantity_pending_filled',
+                                    'quantity_filled_pending_user_currency']]
+
+        order_df = order_df[order_df['quantity_filled_pending_user_currency'] > 0]
+
+    return order_df
+
+
 
 def size_transformer(sz, px):
     try:

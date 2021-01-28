@@ -4,16 +4,25 @@ import datetime
 
 
 def get_mkt_book(appkey, sessiontoken, marketid):
+
+    """Retrieves the market book for a given market ID.
+
+                    Parameters:
+                        appkey (str): Betfair Application Key
+                        sessiontoken (str): Betfair session token
+                        marketid (str/int): Market ID for which market book will be returned
+
+                    Returns:
+                        success (boolean): True if request is successful, else false
+
+                        details (dictionary/string): If success is true then a dictionary 2 fields.
+                        One field is metadata which has details on whether the odds are delayed,
+                        what the market status is, what the bet delay is, what the total matched is.
+                        The second field is a dataframe with 3 layers of market bids (backs) and
+                        offers (lays). The odds are returned in implied probabilities (i.e. 0.05
+                        corresponds to 20 on betfair decimal odds. If success==false, an error message."""
+
     data_type = "listMarketBook"
-
-    """Retrieves the market meta data and live odds for a given market ID.
-
-    Dataframe columns includes 3 layers of back and lay offers,
-    last price, total traded and status. Returns a boolean indicating
-    whether the query was successful, and a details object which is a dictionary including 
-    a Metadata key (for market metadata) and an Odds key which contains the data frame of live odds. 
-    If success==False, returns an error message."""
-
     params = {'marketIds': [marketid],
               'priceProjection': {"priceData": ["EX_ALL_OFFERS"]}}
 

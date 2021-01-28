@@ -8,6 +8,8 @@ sys.path.append("../betfairwrapper")
 import sessions
 import marketdata
 
+pd.set_option('display.expand_frame_repr', False)
+
 
 def parse_config():
     conf_path = os.path.dirname(__file__).replace("tests", "conf") + "/conf.conf"
@@ -35,7 +37,7 @@ success, sesstoken = sessions.get_sess_token(certpath, keypath, uname, pw)
 def main():
 
     # Test 1 for marketdata - valid market id
-    success, details = marketdata.get_mkt_book(appkey, sesstoken, 1.177840678)
+    success, details = marketdata.get_mkt_book(appkey, sesstoken, 1.175611431)
 
     if success and type(details) == dict:
         print("Test 1 for getting market book successful")

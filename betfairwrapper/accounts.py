@@ -2,11 +2,18 @@ import helpers
 
 def get_account_balance(appkey, sessiontoken):
 
-    """Returns dictionary of account balance information
+    """Returns dictionary of account details (balance/exposure limit etc).
 
-    Returns boolean success: True/False, second item returned is a
-    dictionary with exposure, exposure limits, available funds to bet,
-    and account discount rate if success==True, else an error message."""
+     Parameters:
+                appkey (str): Betfair Application Key
+                sessiontoken (str): Betfair session token
+
+            Returns:
+                success: True/False indicating if request was successful.
+
+                Details: dictionary/str. Dictionary including account details
+                Fields include the available balance, exposure, exposure limit
+                and discount rate for the account."""
 
     data_type = "getAccountFunds"
 

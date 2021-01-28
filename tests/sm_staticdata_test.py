@@ -69,7 +69,7 @@ def main():
         success, details = staticdata.get_base_events(sesstoken)
         golfid = list(details[details['Name'] == 'Golf']['ID'])[0]
         success, details = staticdata.get_child_events(sesstoken, golfid, {'limit': [1000]})
-        comp_id = list(details[details['Name'] == 'Abu Dhabi Hsbc Championship 2021']['ID'])[0]
+        comp_id = list(details[details['Name'] == 'Farmers Insurance Open 2021']['ID'])[0]
         success, details = staticdata.get_child_events(sesstoken, comp_id)
         bettable_id = list(details['ID'])[0]
 
@@ -77,7 +77,7 @@ def main():
         success, details = staticdata.get_market_types(sesstoken, bettable_id)
 
         winner_id = list(details[details['name']=='Winner']['id'])[0]
-
+        print("Market ID is", str(winner_id))
 
         if success and type(details) == pd.DataFrame:
             print("Test 4 for getting market types passed")
@@ -96,7 +96,8 @@ def main():
         # Test 6 for getting contracts for market id - should succeed
 
         success, details = staticdata.get_contracts_for_market(sesstoken, winner_id)
-
+        print(details[details['name'] == 'Jon Rahm'])
+        print(details)
         if success and type(details)==pd.DataFrame:
             print("Test 6 for getting contracts passed")
         else:

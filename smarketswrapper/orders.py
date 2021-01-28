@@ -1,5 +1,6 @@
 import helpers
 import pandas as pd
+import json
 
 
 def place_order(sesstoken, contractid, marketid, price, quantity, side, bettype):
@@ -19,6 +20,7 @@ def place_order(sesstoken, contractid, marketid, price, quantity, side, bettype)
 
     result = helpers.order_req(headers, "post", payload)
 
+
     if result.status_code == 200:
         success = True
         details = result.json()
@@ -36,12 +38,18 @@ def place_order(sesstoken, contractid, marketid, price, quantity, side, bettype)
     return success, details
 
 
-def get_order_log(sesstoken):
+def get_order_log(sesstoken, timerange={}):
     ###Need to add time filters and sort out what is wrong with the quantities.
 
     headers = {"Authorization": "Session-Token {0}".format(sesstoken)}
 
     params = {"limit": ["100"]}
+
+    if len(timerange) != 0:
+        start_ts = helpers.datetime_totimestamp(timerange['start'])
+        end_ts = helpers.datetime_totimestamp(timerange['end'])
+        params.update({'created_datetime_min':[start_ts]})
+        params.update({'created_datetime_max':[end_ts]})
 
     result = helpers.order_req(headers, "get", params)
 
@@ -57,6 +65,8 @@ def get_order_log(sesstoken):
                         'quantity_filled_pending_user_currency']:
                 data_dict[fld] = [x[fld] for x in data]
             details = pd.DataFrame(data_dict)
+
+
             details = details.rename(columns={'average_price_matched': 'average_fill_px',
                                               'id': 'order_id'})
             details = details.sort_values(by='created_datetime', ascending=False)
@@ -67,39 +77,29 @@ def get_order_log(sesstoken):
 
             details['created_datetime'] = details['created_datetime'].apply(helpers.timestamp_todatetime)
 
-            details['real_quantity'] = details[['quantity_user_currency', 'price']].apply(
-                helpers.size_transformer_series, axis=1)
-            details['real_quantity_filled'] = details[['quantity_filled_user_currency', 'average_fill_px']].apply(
-                helpers.size_transformer_series, axis=1)
-            details['real_quantity_unfilled'] = details[['quantity_unfilled_user_currency', 'price']].apply(
-                helpers.size_transformer_series, axis=1)
-            details['real_quantity_pending_filled'] = details[
-                ['quantity_filled_pending_user_currency', 'average_fill_px']].apply(helpers.size_transformer_series,
-                                                                                    axis=1)
+            if len(details)==0:
+                details['real_quantity'] = []
+                details['real_quantity_filled'] = []
+                details['real_quantity_unfilled'] = []
+                details['real_quantity_pending_filled'] = []
+            else:
+                details['real_quantity'] = details[['quantity_user_currency', 'price']].apply(
+                    helpers.size_transformer_series, axis=1)
+                details['real_quantity_filled'] = details[['quantity_filled_user_currency', 'average_fill_px']].apply(
+                    helpers.size_transformer_series, axis=1)
+                details['real_quantity_unfilled'] = details[['quantity_unfilled_user_currency', 'price']].apply(
+                    helpers.size_transformer_series, axis=1)
+                details['real_quantity_pending_filled'] = details[
+                    ['quantity_filled_pending_user_currency', 'average_fill_px']].apply(helpers.size_transformer_series,
+                                                                                        axis=1)
 
             details['average_fill_px'] = details['average_fill_px'].apply(helpers.odds_transformer)
             details['price'] = details['price'].apply(helpers.odds_transformer)
 
-            # Extract the actual filled orders
-            fills_df = details[['order_id', 'created_datetime', 'contract_id', 'market_id', 'state', 'side',
-                                'average_fill_px', 'real_quantity_filled', 'quantity_filled_user_currency']]
-
-            fills_df = fills_df[fills_df['quantity_filled_user_currency'] > 0]
-
-            # Extract the live orders
-            live_df = details[['order_id', 'price', 'real_quantity_unfilled', 'created_datetime',
-                               'contract_id', 'market_id', 'state', 'side',
-                               'quantity_unfilled_user_currency']]
-
-            live_df = live_df[live_df['quantity_unfilled_user_currency'] > 0]
-
-            # Extract the pending fills
-
-            pending_fills_df = details[['order_id', 'created_datetime', 'contract_id', 'market_id', 'state', 'side',
-                                        'average_fill_px', 'real_quantity_pending_filled',
-                                        'quantity_filled_pending_user_currency']]
-
-            pending_fills_df = pending_fills_df[pending_fills_df['quantity_filled_pending_user_currency'] > 0]
+            # Extract different order types
+            fills_df = helpers.extract_order_type(details, "fills")
+            live_df = helpers.extract_order_type(details, "live")
+            pending_fills_df = helpers.extract_order_type(details, "pending")
 
             details = {'live': live_df, 'fills': fills_df, 'pending': pending_fills_df}
 
@@ -114,5 +114,27 @@ def get_order_log(sesstoken):
         except:
             details = "Status code {0} received, error type: " \
                       "{1}".format(str(result.status_code), str(result.json()))
+
+    return success, details
+
+
+def cancel_order(sesstoken, orderid=None):
+    headers = {"Authorization": "Session-Token {0}".format(sesstoken)}
+
+    if orderid == None:
+        params = {}
+    else:
+        params = {'orderid': orderid}
+
+    result = helpers.order_req(headers, "delete", params)
+
+    if result.status_code == 200:
+        data = result.json()
+        success = True
+        details = json.dumps(data)
+    else:
+        data = result.json()
+        success = False
+        details = json.dumps(data)
 
     return success, details
