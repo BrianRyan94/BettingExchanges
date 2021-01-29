@@ -1,4 +1,4 @@
-import helpers
+from betfairwrapper import helpers
 import pandas as pd
 
 def get_base_events(appkey, sessiontoken):
