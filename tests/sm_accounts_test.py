@@ -56,6 +56,7 @@ def main():
         # Test 3 - should be success
         success, details = accounts.get_account_statement(sesstoken)
 
+
         if success and type(details)==pd.DataFrame:
             print("Test 3 for getting account statement passed.")
         else:
@@ -88,9 +89,6 @@ def main():
             print("Test 6 for getting account statement passed.")
         else:
             print("Test 6 for getting account details failed, success: {0}, details: {1}".format(success, details))
-
-
-
 
     else:
         print("Failed to generate a session token, cannot perform tests.")

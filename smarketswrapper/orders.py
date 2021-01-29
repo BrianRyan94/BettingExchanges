@@ -4,6 +4,26 @@ import json
 
 
 def place_order(sesstoken, contractid, marketid, price, quantity, side, bettype):
+
+    """Returns a dictionary of the bet placement details.
+
+                       Parameters:
+                           sessiontoken (str): Smarkets session token
+                           contractid (str/int): ContractID chosen - for example Man Utd in the Man Utd vs Arsenal Winners market
+                           price (float): limit price (expressed in terms of probabilities)
+                           quantity (float): the quantity in the account currency that you want to place
+                           side (buy/sell): Indicate if you are backing or laying
+                           bettype (string): The bettype you want (e.g. good_til_halted/good_till_cancelled/keep_in_play/
+                           immediate_or_cancel)
+
+                       Returns:
+                           success (boolean): True if api call is successful, else false
+
+                           details (dictionary/string): If success is true then a dictionary with the bet
+                           placement details, otherwise an error. Note that the success field does not necessarily
+                           mean the bet is placed - it just means the request and response is all as expected. The
+                           response might be that your bet was rejected."""
+
     price = helpers.odds_inverter(float(price))
     quantity = helpers.size_inverter(quantity, price)
 
@@ -39,7 +59,23 @@ def place_order(sesstoken, contractid, marketid, price, quantity, side, bettype)
 
 
 def get_order_log(sesstoken, timerange={}):
-    ###Need to add time filters and sort out what is wrong with the quantities.
+
+
+    """Returns a dictionary of dataframes - 3 dataframes, the keys
+    are live/fills/pending all corresponding to those order types.
+
+                       Parameters:
+                           sessiontoken (str): Smarkets session token
+                           timerange (dictionary): Dictionary with 2 values, start/end. Both
+                           values must be datetime types.
+
+                       Returns:
+                           success (boolean): True if api call is successful, else false
+
+                           details (dictionary/string): If success is true then a dictionary with the
+                           dataframes of orders - that is a 'live' dataframe for live orders, a 'pending'
+                           dataframe for filled but pending confirmation orders, 'fills' dataframe
+                           which shows executed orders with price & volume details."""
 
     headers = {"Authorization": "Session-Token {0}".format(sesstoken)}
 
@@ -119,6 +155,20 @@ def get_order_log(sesstoken, timerange={}):
 
 
 def cancel_order(sesstoken, orderid=None):
+
+
+    """Returns a string showing the details of the cancelled order.
+
+                       Parameters:
+                           sessiontoken (str): Smarkets session token
+                           orderid *optional* (str/int): order id to cancel - if left blank then all orders cancelled.
+
+                       Returns:
+                           success (boolean): True if api call is successful, else false
+
+                           details (string): If success is true then a string of the betfair response.
+                           If success if false then a string detailing the error."""
+
     headers = {"Authorization": "Session-Token {0}".format(sesstoken)}
 
     if orderid == None:

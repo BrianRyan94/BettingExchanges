@@ -63,6 +63,25 @@ def main():
         else:
             print("Test 2 for getting quotes failed, success: {0}, details: {1}".format(success, quotes))
 
+        # Test 3 - should be success
+
+        success, volume = marketdata.get_volume(sesstoken, winner_id)
+
+        if success and type(volume)==pd.DataFrame:
+            print("Test 3 for getting volumes passed.")
+        else:
+            print("Test 3 for getting volumes faild, success: {0}, details: {1}".format(success, volume))
+
+        # Test 4 - should be failure
+
+        success, volume = marketdata.get_volume(sesstoken+"a", winner_id)
+
+        if success==False and type(volume) == str:
+            print("Test 4 for getting volumes passed.")
+        else:
+            print("Test 4 for getting volumes failed, success: {0}, details: {1}".format(success, volume))
+
+
     else:
         print("Failed to generate a session token, cannot perform tests.")
 

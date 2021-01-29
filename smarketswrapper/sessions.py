@@ -2,10 +2,20 @@ import helpers
 
 def connect_session(uname, pw):
 
-    """Function to return a session token given username and password
 
-    Token valid for 30 minutes but extended for 30 minutes if authenticated
-    request is sent."""
+    """Returns a session token for authentication of future requests.
+
+                       Parameters:
+                           uname (str): username for smarkets account
+                           pw (str): password for smarkets account
+
+                       Returns:
+                           success (boolean): True if api call is successful, else false
+
+                           details (dictionary/string): If success is true then a dictionary with the bet
+                           placement details, otherwise an error. Note that the success field does not necessarily
+                           mean the bet is placed - it just means the request and response is all as expected. The
+                           response might be that your bet was rejected."""
 
     data = {'username':uname, "password":pw}
 

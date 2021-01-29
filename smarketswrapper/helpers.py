@@ -1,6 +1,7 @@
 import requests
 import datetime
 import json
+import pandas as pd
 
 baseurl = "https://api.smarkets.com/v3/"
 

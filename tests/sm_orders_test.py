@@ -71,6 +71,8 @@ def main():
         liveorders = details['live']
         orderid = list(liveorders['order_id'])[0]
 
+
+
         if success and type(details) == dict:
             print("Test 4 for getting order log successful")
         else:

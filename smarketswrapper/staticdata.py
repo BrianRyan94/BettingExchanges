@@ -3,6 +3,19 @@ import pandas as pd
 
 def get_base_events(sesstoken):
 
+
+    """Returns a dataframe of the base events (golf/tennis etc).
+
+                       Parameters:
+                           sessiontoken (str): Smarkets session token
+
+                       Returns:
+                           success (boolean): True if api call is successful, else false
+
+                           details (dataframe/string): If success is true then a dataframe with the
+                           base event details including the event names/event ids. If success==false,
+                           an error message"""
+
     endpoint = "events/"
 
     headers = {"Authorization": "Session-Token {0}".format(sesstoken)}
@@ -26,6 +39,26 @@ def get_base_events(sesstoken):
     return success, details
 
 def get_child_events(sesstoken, parentid, extra_filters = {}):
+
+
+    """Returns a dataframe of the child events of a given parent event.
+
+    E.g. pass the golf event id as the parent id and it will return golf tournaments
+    Pass the pga championship event id and it will return all markets for that tournament.
+
+                       Parameters:
+                           sessiontoken (str): Smarkets session token
+                           parentid (str/int): parent id for which you want child events returned
+                           extra_filters (dict): Any key:value pairs you want to pass as filters.
+                           Check https://docs.smarkets.com/#/orders/create_order for the schema.
+
+                       Returns:
+                           success (boolean): True if api call is successful, else false
+
+                           details (dataframe/string): If success is true then a dataframe of the
+                           child events including the name, id, created date, state, start date,
+                           start date time, and whether the event is bettable (are you at a leaf in
+                           the tree)."""
 
     endpoint = "events/"
 
@@ -68,6 +101,20 @@ def get_child_events(sesstoken, parentid, extra_filters = {}):
     return success,details
 
 def get_market_types(sesstoken, bettable_id):
+
+    """Returns a dataframe of market types for a bettable event.
+
+                       Parameters:
+                           sesstoken (str): Smarkets session token
+                           bettable_id(str/int): The bettable event ID for which you want the market types.
+
+                       Returns:
+                           success (boolean): True if api call is successful, else false
+
+                           details (dataframe/string): If success is true then a dataframe of the
+                           market names/ids and other metadata associated with each market.
+                           If success==false, an error string."""
+
     endpoint = "events/{0}/markets?sort=event_id%2Cdisplay_order".format(str(bettable_id))
 
     headers = {"Authorization": "Session-Token {0}".format(sesstoken)}
@@ -95,6 +142,21 @@ def get_market_types(sesstoken, bettable_id):
     return success, details
 
 def get_contracts_for_market(sesstoken, marketid):
+
+    """Returns a dataframe of contracts associated with a marketid.
+
+    *By contracts I mean "choices". For example if the market ID passed is
+    for the "Winner" market of a football game the contracts will be the 2 teams.
+
+                           Parameters:
+                               sesstoken (str): Smarkets session token
+                               marketid(str/int): The market ID for which you want the contracts returned.
+
+                           Returns:
+                               success (boolean): True if api call is successful, else false
+
+                               details (dataframe/string): If success is true then a dataframe of the
+                               contracts (the names/ids/state). If success==false, an error string."""
 
     endpoint = "markets/{0}/contracts/".format(str(marketid))
 
