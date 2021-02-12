@@ -30,6 +30,7 @@ def data_req(appkey, sessiontoken, datatype, params, type="Sports"):
     elif type == "Account":
         url = accounturl
     response = requests.get(url, data=data, headers=headers)
+    print(response.json())
     return response
 
 
