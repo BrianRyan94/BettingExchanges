@@ -61,8 +61,8 @@ def get_mkt_book(appkey, sessiontoken, marketid):
             market_df['totalMatched'] = totalmatched
 
             for i in range(3):
-                back_data = [try_layer_else_0(x, 'availableToLay', i) for x in runners]
-                lay_data = [try_layer_else_0(x, 'availableToBack', i) for x in runners]
+                back_data = [try_layer_else_0(x, 'availableToBack', i) for x in runners]
+                lay_data = [try_layer_else_0(x, 'availableToLay', i) for x in runners]
                 market_df['BACK' + str(i)] = [x[0] for x in back_data]
                 market_df['BACKSIZE' + str(i)] = [x[1] for x in back_data]
                 market_df['LAY' + str(i)] = [x[0] for x in lay_data]
