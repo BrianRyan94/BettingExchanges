@@ -48,12 +48,8 @@ def place_order(sesstoken, contractid, marketid, price, quantity, side, bettype)
 
     else:
         success = False
-        try:
-            details = "Status code {0} received, error type: " \
-                      "{1}".format(str(result.status_code), result.json()['error_type'])
-        except:
-            details = "Status code {0} received, error type: " \
-                      "{1}".format(str(result.status_code), str(result.json()))
+        details = "Status code {0} received, error type: " \
+                  "{1}".format(str(result.status_code), str(result.json()))
 
     return success, details
 
