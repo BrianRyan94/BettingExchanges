@@ -2,6 +2,7 @@ import sys
 import configparser
 import os
 import pandas as pd
+import datetime
 
 sys.path.append("../betfairwrapper")
 # Importing modules
@@ -172,7 +173,7 @@ def main():
 
     # Test 17 for matches should be success
 
-    success, details = staticdata.get_matches(appkey, sesstoken, "10932509")
+    success, details = staticdata.get_matches(appkey, sesstoken, tournamentid="10932509")
 
     if success and type(details) == pd.DataFrame:
         print("Test 17 for getting matches success.")
@@ -181,14 +182,42 @@ def main():
 
     # Test 18 for matches should fail
 
-    success, details = staticdata.get_matches(appkey, sesstoken+"a", "1")
+    success, details = staticdata.get_matches(appkey, sesstoken+"a", tournamentid="1")
 
     if success==False and type(details) == str:
         print("Test 18 for getting matches success.")
     else:
         print("Test 18 for getting matches failed, success:{0}, details:{1}".format(success, details))
 
+    #Test 19 for matches should be success
 
+    success, details = staticdata.get_matches(appkey, sesstoken, eventid="7")
+
+
+    if success and type(details) == pd.DataFrame:
+        print("Test 19 for getting matches success.")
+    else:
+        print("Test 19 for getting matches failed, success:{0}, details:{1}".format(success, details))
+
+    #Test 20 for matches should fail
+
+    success, details = staticdata.get_matches(appkey, sesstoken+"1", "7")
+
+    if success == False and type(details) == str:
+        print("Test 20 for getting matches success.")
+    else:
+        print("Test 20 for getting matches failed, success:{0}, details:{1}".format(success, details))
+
+    # Test 21 for matches should be success
+
+    success, details = staticdata.get_matches(appkey, sesstoken, eventid="7", timeframe={"start":datetime.datetime.today()-datetime.timedelta(days=1),
+                                                                                         "end":datetime.datetime.now()})
+
+
+    if success and type(details) == pd.DataFrame:
+        print("Test 21 for getting matches success.")
+    else:
+        print("Test 21 for getting matches failed, success:{0}, details:{1}".format(success, details))
 
 if success == False:
     print("Failed to generate a session token, cannot perform tests")

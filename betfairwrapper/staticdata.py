@@ -254,7 +254,7 @@ def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None):
 
     return success,details
 
-def get_matches(appkey, sessiontoken, tournamentid):
+def get_matches(appkey, sessiontoken, tournamentid=None, eventid=None, timeframe=None):
 
     """Returns matches (referred to as events) from Betfair
 
@@ -271,8 +271,18 @@ def get_matches(appkey, sessiontoken, tournamentid):
         If false, a string detailing the error."""
 
     data_type = "listEvents"
+    filter = {}
+    params = {}
 
-    params = {"filter": {"competitionIds": [str(tournamentid)]}}
+    if eventid!=None:
+        filter.update({"eventTypeIds":[str(eventid)]})
+    if tournamentid!=None:
+        filter.update({"competitionIds": [str(tournamentid)]})
+    if timeframe!=None:
+        filter.update({"marketStartTime":{"from":helpers.datetime_totimestamp(timeframe["start"]),\
+                                          "to":helpers.datetime_totimestamp(timeframe["end"])}})
+
+    params.update({"filter":filter})
 
     result = helpers.data_req(appkey, sessiontoken, data_type, params)
 
@@ -299,6 +309,9 @@ def get_matches(appkey, sessiontoken, tournamentid):
         details = "Request for matches failed, status code: {0}".format(str(result.status_code))
 
     return success, details
+
+
+
 
 
 

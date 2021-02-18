@@ -133,9 +133,14 @@ def format_filter(filters):
                     filter += ("" if inc == 0 else ",") + '"{0}"'.format(str(item))
                     inc += 1
                 filter += "]"
+            elif type(filters[ky])==dict:
+                subfilter = format_filter(filters[ky])
+                filter+= "{" + "{0}".format(subfilter) + "}"
+
             else:
                 filter += '"{0}"'.format(filters[ky])
             incr += 1
+
         return filter
 
 
