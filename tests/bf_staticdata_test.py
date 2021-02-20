@@ -219,6 +219,16 @@ def main():
     else:
         print("Test 21 for getting matches failed, success:{0}, details:{1}".format(success, details))
 
+
+    # Test 22 for market catalogue should be success
+    success, details = staticdata.get_market_catalogue(appkey, sesstoken, matchid="30295905", markettype="WIN")
+    if success and type(details) == pd.DataFrame:
+        print("Test 22 for getting market catalogue success.")
+    else:
+        print("Test 21 for getting market catalogue failed, success:{0}, details:{1}".format(success, details))
+
+
+
 if success == False:
     print("Failed to generate a session token, cannot perform tests")
 else:

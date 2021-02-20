@@ -198,7 +198,7 @@ def get_runner_names(appkey, sessiontoken, marketid):
 
     return success, details
 
-def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None):
+def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None, markettype=None):
 
     """Returns a market catalogue in dataframe form given filters on tournaments/matches
 
@@ -207,6 +207,9 @@ def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None):
             sessiontoken (str): Betfair session token
             tournamentid *optional* (str/int): Tournament ID (e.g. Premier League: 3) for which you want markets returned
             matchid *optional* (str/int): Match ID (e.g. Man Utd Vs Arsenal) for which you want markets returned
+            markettype *optional* (str): The market type code (e.g. WIN). For example, if you wanted to get
+            all horse racing WIN markets for the ASCOT venue you would pass the event ID for ASCOT and
+            pass markettype="WIN".
 
         Returns:
             success (boolean): True if api call is successful, else false
@@ -226,6 +229,9 @@ def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None):
 
     if matchid is not None:
         filter.update({"eventIds": [str(matchid)]})
+
+    if markettype is not None:
+        filter.update({"marketTypeCodes":[str(markettype)]})
 
     if len(filter)!=0:
         params.update({"filter":filter})
