@@ -262,6 +262,8 @@ def get_matches(appkey, sessiontoken, tournamentid=None, eventid=None, timeframe
         appkey (str): Betfair Application Key
         sessiontoken (str): Betfair session token
         tournamentid (str/int): Tournament ID (e.g. Premier League: 3) for which you want matches returned
+        eventid (str/int): Event Type ID (e.g. 7 for Horse Racing)
+        timeframe dict: Dictionary taking two keys: start, end and datetime values for both.
 
     Returns:
         success (boolean): True if api call is successful, else false

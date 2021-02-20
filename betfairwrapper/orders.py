@@ -183,8 +183,7 @@ def cancelOrder(appkey, sessiontoken, marketid, betid, sizereduction):
 
                 else:
                     success = False
-                    status = data['result']['status']
-                    details = "Bet cancellations failed, received json response with success={0}".format(str(status))
+                    details = "Bet cancellations failed, received following json response: {0}".format(str(data))
             else:
                 success = False
                 details = "Bet placement failed, no status sent back in response"
