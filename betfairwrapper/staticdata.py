@@ -198,7 +198,7 @@ def get_runner_names(appkey, sessiontoken, marketid):
 
     return success, details
 
-def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None, markettype=None, marketprojection=None):
+def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None, marketid=None, markettype=None, marketprojection=None):
 
     """Returns a market catalogue in dataframe form given filters on tournaments/matches
 
@@ -207,6 +207,8 @@ def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None, 
             sessiontoken (str): Betfair session token
             tournamentid *optional* (str/int): Tournament ID (e.g. Premier League: 3) for which you want markets returned
             matchid *optional* (str/int): Match ID (e.g. Man Utd Vs Arsenal) for which you want markets returned
+            marketid *optional* (str/int): Market ID for which you want information. Typically used in combination with a value
+            in the market projection (e.g. if you want the MARKET_START_TIME for a specific market id).
             markettype *optional* (str): The market type code (e.g. WIN). For example, if you wanted to get
             all horse racing WIN markets for the ASCOT venue you would pass the event ID for ASCOT and
             pass markettype="WIN".
@@ -227,8 +229,14 @@ def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None, 
 
     filter = {}
 
+    if marketprojection is not None:
+        params.update({"marketProjection":[str(marketprojection)]})
+
     if tournamentid is not None:
         filter.update({"competitionIds": [str(tournamentid)]})
+
+    if marketid is not None:
+        filter.update({"marketIds": [str(marketid)]})
 
     if matchid is not None:
         filter.update({"eventIds": [str(matchid)]})
@@ -236,8 +244,7 @@ def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None, 
     if markettype is not None:
         filter.update({"marketTypeCodes":[str(markettype)]})
 
-    if marketprojection is not None:
-        filter.update({"marketProjection":[str(marketprojection)]})
+
 
     if len(filter)!=0:
         params.update({"filter":filter})
@@ -247,10 +254,14 @@ def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None, 
     if result.status_code==200:
         if 'result' in result.json() and len(result.json()['result'])>0:
             data = result.json()['result']
+
             success = True
             data_dict = {}
 
-            for fld in ['marketId', 'marketName','totalMatched']:
+            default_fields = ['marketId', 'marketName','totalMatched']
+            if marketprojection=="MARKET_START_TIME":
+                default_fields.append('marketStartTime')
+            for fld in default_fields:
                 data_dict[fld] = [x[fld] for x in data]
 
             details = pd.DataFrame(data_dict)

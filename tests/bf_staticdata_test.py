@@ -221,12 +221,20 @@ def main():
 
 
     # Test 22 for market catalogue should be success
-    success, details = staticdata.get_market_catalogue(appkey, sesstoken, matchid="30295905", markettype="WIN")
+    success, details = staticdata.get_market_catalogue(appkey, sesstoken, matchid="30295905", markettype="WIN", marketprojection="MARKET_START_TIME")
     if success and type(details) == pd.DataFrame:
         print("Test 22 for getting market catalogue success.")
     else:
         print("Test 21 for getting market catalogue failed, success:{0}, details:{1}".format(success, details))
 
+    # Test 23 for market catalogue should be success
+    success, details = staticdata.get_market_catalogue(appkey, sesstoken, marketid="1.179523469", marketprojection="MARKET_START_TIME")
+
+    print(details)
+    if success and type(details) == pd.DataFrame:
+        print("Test 22 for getting market catalogue success.")
+    else:
+        print("Test 22 for getting market catalogue failed, success:{0}, details:{1}".format(success, details))
 
 
 if success == False:
