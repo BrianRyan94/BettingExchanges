@@ -198,7 +198,7 @@ def get_runner_names(appkey, sessiontoken, marketid):
 
     return success, details
 
-def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None, markettype=None):
+def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None, markettype=None, marketprojection=None):
 
     """Returns a market catalogue in dataframe form given filters on tournaments/matches
 
@@ -210,6 +210,9 @@ def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None, 
             markettype *optional* (str): The market type code (e.g. WIN). For example, if you wanted to get
             all horse racing WIN markets for the ASCOT venue you would pass the event ID for ASCOT and
             pass markettype="WIN".
+            marketprojection *optional* (str): The market projection (e.g. MARKET_START_TIME, RUNNER_METATADATA,
+            MARKET_DESCRIPTION, RUNNER_DESCRIPTION). Particularly useful for getting the time that an
+            event kicks off (passing MARKET_START_TIME).
 
         Returns:
             success (boolean): True if api call is successful, else false
@@ -232,6 +235,9 @@ def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None, 
 
     if markettype is not None:
         filter.update({"marketTypeCodes":[str(markettype)]})
+
+    if marketprojection is not None:
+        filter.update({"marketProjection":[str(marketprojection)]})
 
     if len(filter)!=0:
         params.update({"filter":filter})
