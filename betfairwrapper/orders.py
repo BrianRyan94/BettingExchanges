@@ -130,16 +130,7 @@ def placeOrder(appkey, sessiontoken, marketid, selectionid, side, amount, limitp
                 details = "Bet placement failed, no status sent back in response"
         else:
             success = False
-            try:
-                errorcode = data['error']['data']['APINGException']['errorCode']
-                errordetails = data['error']['data']['APINGException']['errorDetails']
-                details = "Failed to place bet, error code: {0}, error details: {1}".format(errorcode, errordetails)
-            except KeyError:
-                try:
-                    error = helpers.extract_error(result)
-                    details = "Failed to place bet, error details: {0}".format(error)
-                except:
-                    details = "Failed to place bet, unrecognized error code."
+            details = "Failed to place bet, error details: {0}".format(str(data))
 
     return success, details
 
