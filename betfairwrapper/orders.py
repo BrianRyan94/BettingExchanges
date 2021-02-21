@@ -143,7 +143,7 @@ def placeOrder(appkey, sessiontoken, marketid, selectionid, side, amount, limitp
 
     return success, details
 
-def cancelOrder(appkey, sessiontoken, marketid, betid, sizereduction):
+def cancelOrder(appkey, sessiontoken, marketid, betid, sizereduction=None):
 
     """Cancel/reduce the size of a live bet.
 
@@ -163,7 +163,10 @@ def cancelOrder(appkey, sessiontoken, marketid, betid, sizereduction):
 
     data_type = "cancelOrders"
 
-    instructions = [{"betId":betid, "sizeReduction":sizereduction}]
+    if sizereduction==None:
+        instructions = [{"betId": betid}]
+    else:
+        instructions = [{"betId":betid, "sizeReduction":sizereduction}]
 
     params = {'marketId':marketid,"instructions":instructions}
 
