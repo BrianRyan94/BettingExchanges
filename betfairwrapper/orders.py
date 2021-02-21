@@ -91,7 +91,7 @@ def placeOrder(appkey, sessiontoken, marketid, selectionid, side, amount, limitp
                     details (Dataframe/string): If success is true then a dataframe with bet details
                     including betid/placeddate/status/size matched/average price matched."""
 
-    limitpx = helpers.odds_inverter(limitprob)
+    limitpx = round(helpers.odds_inverter(limitprob),1)
 
     data_type = "placeOrders"
 

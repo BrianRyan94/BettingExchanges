@@ -95,7 +95,7 @@ def main():
 
     # Test 6 for placing an order - should be unsuccessful due to invalid app key
 
-    success, details = orders.placeOrder(appkey + "a", sesstoken, 1.177655531, 1222347, "BACK", 2, 1.4)
+    success, details = orders.placeOrder("u3aNksQGhdXhGldb","cdo4jfG9+Ym4dtrd1HLhb4FGxHhRetqlsgBCTSSdLf8=",1.175611431 , 1222347, "BACK", 2, 1.4)
 
     if success == False and type(details) == str:
         print("Test 6 for placing order successful")
