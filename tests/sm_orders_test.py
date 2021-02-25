@@ -39,7 +39,7 @@ def main():
     if success:
 
         # Test 1 - should be success
-        success, details = orders.place_order(sesstoken, 43440296, 12553850, 0.05, 2, "buy", 'good_til_halted')
+        success, details = orders.place_order(sesstoken, 42212509, 12153540, 0.05, 2, "buy", 'good_til_halted')
 
         if success and type(details) == dict:
             print('Test 1 for placing an order successful.')
@@ -47,7 +47,7 @@ def main():
             print('Test 1 for placing order failed, success: {0}, details: {1}'.format(success, details))
 
         # Test 2 - should be success
-        success, details = orders.place_order(sesstoken, 43440296, 12553850, 0.5, 2, "sell",
+        success, details = orders.place_order(sesstoken, 42212509, 12153540, 0.5, 2, "sell",
                                               'good_til_halted')
 
         if success and type(details) == dict:
@@ -57,7 +57,7 @@ def main():
 
         # Test 3 - should be a failure
 
-        success, details = orders.place_order(sesstoken, 434402960, 12553850, 0.5, 2, "sell",
+        success, details = orders.place_order(sesstoken, 42212509, 12153540, 0.5, 2, "sell",
                                               'good_til_halted')
 
         if success == False and type(details) == str:
@@ -68,9 +68,12 @@ def main():
         # Test 4 - should be a success
 
         success, details = orders.get_order_log(sesstoken)
+        print("Live orders")
         liveorders = details['live']
-        orderid = list(liveorders['order_id'])[0]
+        print(liveorders)
 
+
+        orderid = list(liveorders['order_id'])[0]
 
 
         if success and type(details) == dict:
@@ -111,7 +114,7 @@ def main():
 
         success, details = orders.get_order_log(sesstoken, {'start': datetime.datetime(2021, 1, 25),
                                                     'end': datetime.datetime(2021, 1, 27, 12, 0, 0)})
-
+        print(details['fills'])
         if success and type(details) == dict:
             print("Test 8 for getting order log with date range successful")
         else:

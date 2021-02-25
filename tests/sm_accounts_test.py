@@ -29,15 +29,17 @@ def parse_config():
 configs = parse_config()
 uname = configs["sm_uname"]
 pw = configs["sm_pw"]
-
+print(uname)
+print(pw)
 
 def main():
     success, sesstoken = sessions.connect_session(uname, pw)
-
+    print(sesstoken)
     if success:
 
         # Test 1 - should be success
         success, details = accounts.get_account_info(sesstoken)
+
 
         if success and type(details)==dict:
             print("Test 1 for getting account details passed.")

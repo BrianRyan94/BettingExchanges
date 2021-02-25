@@ -71,10 +71,10 @@ def get_mkt_book(appkey, sessiontoken, marketid):
             details = {'Metadata': metadata, "Odds": market_df}
         else:
             success = False
-            details = helpers.extract_error(result)
+            details = str(result.json())
     else:
         success = False
-        details = "Request for events failed, status code: {0}".format(str(result.status_code))
+        details = "Request for events failed, details: {0}".format(str(result.json()))
 
     return success, details
 
