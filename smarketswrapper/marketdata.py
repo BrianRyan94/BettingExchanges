@@ -49,7 +49,9 @@ def get_live_odds(sesstoken, marketid, type):
 
             elif type=="trade":
                 details = helpers.parse_trades_to_df(data)
-
+    else:
+        success = False
+        details = str(result.json())
     return success, details
 
 def get_volume(sesstoken, marketid):
