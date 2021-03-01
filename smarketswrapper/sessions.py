@@ -20,10 +20,10 @@ def connect_session(uname, pw):
     data = {'username':uname, "password":pw}
 
     result = helpers.data_req('sessions/',{'Content-Type':"application/json"}, data)
-
+    print(result.json())
     if result.status_code==201:
         success = True
-        details = result.json()["token"]
+        details = {'token':result.json()["token"], 'expires':helpers.timestamp_todatetime(result.json()['stop'])}
     else:
         success = False
         details = "Failed to generate a session token, error type: {0}".format(result.json()['error_type'])
