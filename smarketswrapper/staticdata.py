@@ -16,7 +16,7 @@ def get_base_events(sesstoken):
                            base event details including the event names/event ids. If success==false,
                            an error message"""
 
-    endpoint = "events/"
+    endpoint = "events/?limit=100"
 
     headers = {"Authorization": "Session-Token {0}".format(sesstoken)}
 
