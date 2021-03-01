@@ -263,6 +263,8 @@ def get_market_catalogue(appkey, sessiontoken, tournamentid=None, matchid=None, 
                 default_fields.append('marketStartTime')
             for fld in default_fields:
                 data_dict[fld] = [x[fld] for x in data]
+                if fld=="marketStartTime":
+                    data_dict[fld] = [helpers.timestamp_todatetime(x) for x in data_dict[fld]]
 
             details = pd.DataFrame(data_dict)
         else:
