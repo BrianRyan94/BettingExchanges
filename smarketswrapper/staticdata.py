@@ -83,9 +83,16 @@ def get_child_events(sesstoken, parentid, extra_filters = {}):
                     created.append(helpers.timestamp_todatetime(x['created']))
                 except:
                     created.append(str(x['created']))
+
+            def try_timestamp(x):
+                try:
+                    return helpers.timestamp_todatetime(x)
+                except:
+                    return str(x)
+
             state = [x['state'] for x in data]
             start_date = [x['start_date'] for x in data]
-            start_datetime = [x['start_datetime'] for x in data]
+            start_datetime = [try_timestamp(x['start_datetime']) for x in data]
             bettable = [x['bettable'] for x in data]
 
             details = pd.DataFrame({'Name': names, 'ID': ids, 'created':created,
