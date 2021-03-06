@@ -20,7 +20,7 @@ def connect_session(uname, pw):
     data = {'username':uname, "password":pw}
 
     result = helpers.data_req('sessions/',{'Content-Type':"application/json"}, data)
-   
+
     if result.status_code==201:
         success = True
         details = {'token':result.json()["token"], 'expires':helpers.timestamp_todatetime(result.json()['stop'])}

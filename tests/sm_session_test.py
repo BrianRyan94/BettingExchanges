@@ -32,6 +32,8 @@ def main():
     # Test 1 - generating session token should be successful
     success, details = sessions.connect_session(uname, pw)
 
+
+
     if success:
         print("Test 1 to generate a session token passed")
     else:

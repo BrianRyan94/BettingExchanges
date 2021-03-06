@@ -37,8 +37,9 @@ def main():
 
         success, details = staticdata.get_base_events(sesstoken)
 
+
         #for future test
-        golfid = list(details[details['Name']=='Golf']['ID'])[0]
+        golfid = list(details[details['Name']=='Horse Racing']['ID'])[0]
 
         if success and type(details)==pd.DataFrame:
             print("Test 1 for getting base events passed.")
@@ -46,9 +47,9 @@ def main():
             print("Test 1 for getting base events failed, success:{0} error: {1}".format(success, details))
 
         # Test 2 - for getting child events
-
-        success, details = staticdata.get_child_events(sesstoken, golfid, {'limit':[1000]})
-
+        import datetime
+        success, details = staticdata.get_child_events(sesstoken, golfid, {'limit':[1000], 'start_datetime_min':["2020-01-01T00:00:00Z"]})
+        print(details)
 
 
         if success and type(details)==pd.DataFrame:

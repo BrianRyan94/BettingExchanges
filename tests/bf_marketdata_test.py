@@ -37,8 +37,8 @@ success, sesstoken = sessions.get_sess_token(certpath, keypath, uname, pw)
 def main():
 
     # Test 1 for marketdata - valid market id
-    success, details = marketdata.get_mkt_book(appkey, sesstoken, 1.175611431)
-
+    success, details = marketdata.get_mkt_book(appkey, sesstoken, ['1.178793070','1.170182528'])
+    print(details)
     if success and type(details) == dict:
         print("Test 1 for getting market book successful")
     else:
