@@ -33,30 +33,20 @@ pw = configs["sm_pw"]
 
 def main():
     success, sesstoken = sessions.connect_session(uname, pw)
-
+    sesstoken = sesstoken['token']
     if success:
 
         ###Just for gettin a market id
-        success, details = staticdata.get_base_events(sesstoken)
-        golfid = list(details[details['Name'] == 'Golf']['ID'])[0]
-        success, details = staticdata.get_child_events(sesstoken, golfid, {'limit': [1000]})
-        comp_id = list(details[details['Name']=='US Open 2021']['ID'])[0]
-        success, details = staticdata.get_child_events(sesstoken, comp_id)
-        bettable_id = list(details['ID'])[0]
-        success, details = staticdata.get_market_types(sesstoken, bettable_id)
-        winner_id = list(details[details['name'] == 'The US Open - Winner']['id'])[0]
 
         # Test 1 - should be success
-        success, trades= marketdata.get_live_odds(sesstoken, winner_id, "trade")
+        success, trades = marketdata.get_live_odds(sesstoken, [12304075, 10960825], "trade")
 
-        if success and type(trades)==pd.DataFrame:
+        if success and type(trades) == dict:
             print("Test 1 for getting trades passed.")
         else:
             print("Test 1 for getting trades failed, success: {0}, details: {1}".format(success, trades))
 
-        # Test 2 - should be success
-
-        success, quotes = marketdata.get_live_odds(sesstoken, winner_id, "quote")
+        success, quotes = marketdata.get_live_odds(sesstoken, [12304075,10960825], "quote")
 
         if success and type(quotes) == pd.DataFrame:
             print("Test 2 for getting quotes passed.")
@@ -65,7 +55,7 @@ def main():
 
         # Test 3 - should be success
 
-        success, volume = marketdata.get_volume(sesstoken, winner_id)
+        success, volume = marketdata.get_volume(sesstoken, 12304075)
 
         if success and type(volume)==pd.DataFrame:
             print("Test 3 for getting volumes passed.")
@@ -74,7 +64,7 @@ def main():
 
         # Test 4 - should be failure
 
-        success, volume = marketdata.get_volume(sesstoken+"a", winner_id)
+        success, volume = marketdata.get_volume(sesstoken+"a", 12304075)
 
         if success==False and type(volume) == str:
             print("Test 4 for getting volumes passed.")

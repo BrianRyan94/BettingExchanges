@@ -2,12 +2,12 @@ from smarketswrapper import helpers
 import pandas as pd
 
 
-def get_live_odds(sesstoken, marketid, type):
+def get_live_odds(sesstoken, marketids, type):
     """Returns a dataframe of live market details for either quotes or trades.
 
                     Parameters:
                         sessiontoken (str): Smarkets session token
-                        marketid (str/int): MarketID for which odds/trades are required
+                        marketid list: (str/int): MarketIDs for which odds/trades are required
                         type (quote/trade): Determines if market quotes or trades are returned
 
                     Returns:
@@ -16,10 +16,11 @@ def get_live_odds(sesstoken, marketid, type):
                         details (Dataframe/string): If success is true then a dataframe with
                         live market odds/trades. If success==False, an error message."""
 
+    marketidstring = ",".join([str(x) for x in marketids])
     if type=="quote":
-         endpoint = "markets/{0}/quotes/".format(str(marketid))
+         endpoint = "markets/{0}/quotes/".format(marketidstring)
     elif type=="trade":
-         endpoint = "markets/{0}/last_executed_prices/".format(str(marketid))
+         endpoint = "markets/{0}/last_executed_prices/".format(marketidstring)
 
     headers = {"Authorization": "Session-Token {0}".format(sesstoken)}
 
@@ -30,25 +31,28 @@ def get_live_odds(sesstoken, marketid, type):
         if type=="trade":
             if 'last_executed_prices' in data:
                 data = data['last_executed_prices']
-                if str(marketid) in data and len(data[str(marketid)])>0:
-                    success = True
-                    data = data[str(marketid)]
+                success = True
             if success==False:
-                details = "Response received but no trades for market id {0} found".apply(marketid)
+                details = "Response received but no trades for market ids {0} found".apply(marketidstring)
         elif type=="quote":
             if len(data)>0:
                 success = True
             else:
                 success = False
-                details = "Response received but no quotes for market id {0} found".apply(marketid)
+                details = "Response received but no quotes for market ids {0} found".apply(marketidstring)
 
         if success:
-
             if type=="quote":
                 details = helpers.parse_odds_to_df(data)
 
             elif type=="trade":
-                details = helpers.parse_trades_to_df(data)
+                details = {}
+                for marketid in list(data.keys()):
+                    tradedf = helpers.parse_trades_to_df(data[marketid])
+                    details[marketid] = tradedf
+
+
+
     else:
         success = False
         details = str(result.json())
