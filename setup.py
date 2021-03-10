@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="betfair_smarkets_simple",
-    version="0.2.2",
+    version="0.2.3",
     author="Brian Ryan",
     author_email = "brian.ryan@ucdconnect.ie",
     description="Wrappers for smarkets/betfair APIs",
