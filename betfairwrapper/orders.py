@@ -38,6 +38,12 @@ def list_orders(appkey, sessiontoken, since=None, until=None):
             except:
                 return x
 
+        def try_convert_timestamp(x):
+            try:
+                return helpers.timestamp_todatetime(x)
+            except:
+                return x
+
         if 'result' in result.json():
             success = True
             data = result.json()['result']['currentOrders']
@@ -54,6 +60,9 @@ def list_orders(appkey, sessiontoken, since=None, until=None):
 
             details['averagePriceMatched'] = details['averagePriceMatched'].apply(lambda x: try_convert_odds(x))
             details['price'] = details['price'].apply(lambda x: try_convert_odds(x))
+
+            details['placedDate'] = details['placedDate'].apply(try_convert_timestamp)
+            details['matchedDate'] = details['matchedDate'].apply(try_convert_timestamp)
 
 
             live = helpers.extract_order_type(details, 'live')
